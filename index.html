@@ -1,232 +1,394 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Demo Página con Animaciones y Menú</title>
-  <style>
-    /* Reset básico */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background: #f0f2f5;
-      padding: 20px;
-      color: #333;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Interactivo con Gráficos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Variables CSS para temas */
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --card-bg: #fff;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
 
-    /* Menú hamburguesa */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #4a90e2;
-      padding: 10px 20px;
-      color: white;
-    }
-    .navbar h1 {
-      font-size: 24px;
-    }
-    .menu-toggle {
-      cursor: pointer;
-      display: block;
-      width: 30px;
-      height: 25px;
-      position: relative;
-    }
-    .menu-toggle span {
-      background: white;
-      display: block;
-      height: 4px;
-      margin: 5px 0;
-      border-radius: 2px;
-      transition: 0.3s;
-      position: relative;
-    }
-    /* Animación hamburguesa abierta */
-    .menu-toggle.open span:nth-child(1) {
-      transform: rotate(45deg);
-      top: 8px;
-      position: absolute;
-      width: 30px;
-    }
-    .menu-toggle.open span:nth-child(2) {
-      opacity: 0;
-    }
-    .menu-toggle.open span:nth-child(3) {
-      transform: rotate(-45deg);
-      top: 8px;
-      position: absolute;
-      width: 30px;
-    }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --button-bg: #bb86fc;
+            --button-hover: #9d4edd;
+            --shadow: rgba(255, 255, 255, 0.1);
+        }
 
-    /* Menú desplegable */
-    .menu {
-      background: #357ABD;
-      display: none;
-      flex-direction: column;
-    }
-    .menu.show {
-      display: flex;
-      animation: fadeIn 0.3s ease forwards;
-    }
-    .menu a {
-      padding: 10px 20px;
-      color: white;
-      text-decoration: none;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      transition: background 0.3s;
-    }
-    .menu a:hover {
-      background: rgba(255,255,255,0.2);
-    }
+        /* Estilos base */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            font-size: 16px;
+        }
 
-    /* Animación fadeIn */
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(-10px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
 
-    /* Contenido principal */
-    main {
-      margin-top: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px var(--shadow);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
+        }
 
-    /* Toggle contenido */
-    .toggle-section {
-      margin-top: 20px;
-    }
-    .toggle-btn {
-      background: #4a90e2;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    .toggle-btn:hover {
-      background: #357ABD;
-    }
-    .toggle-content {
-      margin-top: 15px;
-      padding: 15px;
-      background: #e9f0fa;
-      border-radius: 6px;
-      display: none;
-      animation: fadeIn 0.4s ease forwards;
-    }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px var(--shadow);
+        }
 
-    /* Gráfico con SVG */
-    .chart {
-      margin-top: 30px;
-      text-align: center;
-    }
-    .bar {
-      fill: #4a90e2;
-      transition: fill 0.3s, height 0.4s;
-      cursor: pointer;
-    }
-    .bar:hover {
-      fill: #357ABD;
-    }
-    .bar-label {
-      font-size: 12px;
-      fill: #333;
-      pointer-events: none;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
 
-  </style>
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px var(--shadow);
+            font-size: 18px;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+            transform: scale(1.1);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Estilos para gráficos */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rotateIn {
+            from { transform: rotate(90deg); opacity: 0; }
+            to { transform: rotate(0deg); opacity: 1; }
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                top: 10px;
+                right: 10px;
+                flex-direction: row;
+            }
+            button {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+            .chart-container {
+                height: 150px;
+            }
+        }
+
+        /* Clase para animación de rotación */
+        .rotate-animation {
+            animation: rotateIn 0.5s ease;
+        }
+    </style>
 </head>
-<body>
-
-  <nav class="navbar">
-    <h1>Mi Página Demo</h1>
-    <div class="menu-toggle" id="menuToggle" aria-label="Toggle Menu" role="button" tabindex="0">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-  </nav>
-
-  <div class="menu" id="menu">
-    <a href="#inicio">Inicio</a>
-    <a href="#sobre">Sobre</a>
-    <a href="#contacto">Contacto</a>
-  </div>
-
-  <main>
-    <h2>Sección Toggle</h2>
-    <p>Pulsa el botón para mostrar u ocultar esta sección con animación.</p>
-    <div class="toggle-section">
-      <button class="toggle-btn" id="toggleBtn">Mostrar contenido</button>
-      <div class="toggle-content" id="toggleContent">
-        <p>¡Este contenido aparece y desaparece suavemente con animación!</p>
-      </div>
+<body data-theme="light">
+    <div class="controls">
+        <button id="fullscreen-btn" title="Pantalla Completa">⛶</button>
+        <button id="zoom-in-btn" title="Zoom In">+</button>
+        <button id="zoom-out-btn" title="Zoom Out">−</button>
+        <button id="theme-toggle-btn" title="Cambiar Tema">🌙</button>
     </div>
 
-    <section class="chart">
-      <h2>Gráfico simple</h2>
-      <svg width="100%" height="200" viewBox="0 0 300 200" role="img" aria-label="Gráfico de barras simple">
-        <!-- barras -->
-        <rect class="bar" x="10" y="120" width="40" height="80" />
-        <rect class="bar" x="70" y="80" width="40" height="120" />
-        <rect class="bar" x="130" y="140" width="40" height="60" />
-        <rect class="bar" x="190" y="60" width="40" height="140" />
-        <rect class="bar" x="250" y="100" width="40" height="100" />
-        <!-- labels -->
-        <text class="bar-label" x="30" y="195" text-anchor="middle">A</text>
-        <text class="bar-label" x="90" y="195" text-anchor="middle">B</text>
-        <text class="bar-label" x="150" y="195" text-anchor="middle">C</text>
-        <text class="bar-label" x="210" y="195" text-anchor="middle">D</text>
-        <text class="bar-label" x="270" y="195" text-anchor="middle">E</text>
-      </svg>
-    </section>
-  </main>
+    <h1>Dashboard Interactivo con Gráficos</h1>
+    <div class="dashboard">
+        <div class="card">
+            <h2>Indicador de Ventas</h2>
+            <p>Ventas mensuales en miles de unidades.</p>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Indicador de Usuarios</h2>
+            <p>Crecimiento de usuarios activos.</p>
+            <div class="chart-container">
+                <canvas id="usersChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Indicador de Rendimiento</h2>
+            <p>Porcentaje de rendimiento del sistema.</p>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Indicador de Ingresos</h2>
+            <p>Ingresos trimestrales en dólares.</p>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    // Toggle menú hamburguesa
-    const menuToggle = document.getElementById('menuToggle');
-    const menu = document.getElementById('menu');
+    <script>
+        // Variables para zoom y tema
+        let zoomLevel = 1;
+        const body = document.body;
+        const dashboard = document.querySelector('.dashboard');
+        const h1 = document.querySelector('h1');
 
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('open');
-      menu.classList.toggle('show');
-    });
+        // Botón de pantalla completa
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
 
-    // Hacer toggle con tecla Enter o espacio para accesibilidad
-    menuToggle.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        menuToggle.click();
-      }
-    });
+        // Botones de zoom
+        document.getElementById('zoom-in-btn').addEventListener('click', () => {
+            zoomLevel = Math.min(zoomLevel + 0.1, 2); // Máximo 200%
+            applyZoom();
+        });
 
-    // Toggle contenido
-    const toggleBtn = document.getElementById('toggleBtn');
-    const toggleContent = document.getElementById('toggleContent');
+        document.getElementById('zoom-out-btn').addEventListener('click', () => {
+            zoomLevel = Math.max(zoomLevel - 0.1, 0.5); // Mínimo 50%
+            applyZoom();
+        });
 
-    toggleBtn.addEventListener('click', () => {
-      const isVisible = toggleContent.style.display === 'block';
-      if (isVisible) {
-        toggleContent.style.display = 'none';
-        toggleBtn.textContent = 'Mostrar contenido';
-      } else {
-        toggleContent.style.display = 'block';
-        toggleBtn.textContent = 'Ocultar contenido';
-      }
-    });
-  </script>
+        function applyZoom() {
+            body.style.transform = `scale(${zoomLevel})`;
+            body.style.transformOrigin = 'top left';
+            // Ajustar el tamaño del contenedor para evitar scroll innecesario
+            body.style.width = `${100 / zoomLevel}%`;
+            body.style.height = `${100 / zoomLevel}%`;
+        }
 
+        // Botón de cambio de tema
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            themeBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            // Actualizar colores de gráficos
+            updateChartThemes(newTheme);
+        });
+
+        // Función para actualizar temas de gráficos
+        function updateChartThemes(theme) {
+            const textColor = theme === 'dark' ? '#e0e0e0' : '#333';
+            const gridColor = theme === 'dark' ? '#444' : '#ddd';
+            Chart.defaults.color = textColor;
+            Chart.defaults.borderColor = gridColor;
+            // Re-renderizar gráficos
+            salesChart.update();
+            usersChart.update();
+            performanceChart.update();
+            revenueChart.update();
+        }
+
+        // Animación en rotación de pantalla (dispositivos móviles)
+        window.addEventListener('orientationchange', () => {
+            // Agregar clase de animación a todos los elementos
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.add('rotate-animation');
+                setTimeout(() => card.classList.remove('rotate-animation'), 500);
+            });
+            h1.classList.add('rotate-animation');
+            setTimeout(() => h1.classList.remove('rotate-animation'), 500);
+        });
+
+        // Animación inicial al cargar
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.card').forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                }, 100);
+            });
+        });
+
+        // Configuración de gráficos con Chart.js
+        const ctxSales = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctxSales, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Ventas',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const ctxUsers = document.getElementById('usersChart').getContext('2d');
+        const usersChart = new Chart(ctxUsers, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Usuarios',
+                    data: [100, 200, 150, 300, 250, 400],
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const ctxPerformance = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctxPerformance, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completado', 'Pendiente'],
+                datasets: [{
+                    data: [85, 15],
+                    backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(255, 205, 86, 0.6)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 205, 86, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctxRevenue, {
+            type: 'bar',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [{
+                    label: 'Ingresos',
+                    data: [5000, 7000, 6000, 8000],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuad'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
