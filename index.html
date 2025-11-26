@@ -1,1 +1,232 @@
-<h1>hola<h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo Página con Animaciones y Menú</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: #f0f2f5;
+      padding: 20px;
+      color: #333;
+    }
+
+    /* Menú hamburguesa */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #4a90e2;
+      padding: 10px 20px;
+      color: white;
+    }
+    .navbar h1 {
+      font-size: 24px;
+    }
+    .menu-toggle {
+      cursor: pointer;
+      display: block;
+      width: 30px;
+      height: 25px;
+      position: relative;
+    }
+    .menu-toggle span {
+      background: white;
+      display: block;
+      height: 4px;
+      margin: 5px 0;
+      border-radius: 2px;
+      transition: 0.3s;
+      position: relative;
+    }
+    /* Animación hamburguesa abierta */
+    .menu-toggle.open span:nth-child(1) {
+      transform: rotate(45deg);
+      top: 8px;
+      position: absolute;
+      width: 30px;
+    }
+    .menu-toggle.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .menu-toggle.open span:nth-child(3) {
+      transform: rotate(-45deg);
+      top: 8px;
+      position: absolute;
+      width: 30px;
+    }
+
+    /* Menú desplegable */
+    .menu {
+      background: #357ABD;
+      display: none;
+      flex-direction: column;
+    }
+    .menu.show {
+      display: flex;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    .menu a {
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      transition: background 0.3s;
+    }
+    .menu a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Animación fadeIn */
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* Contenido principal */
+    main {
+      margin-top: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Toggle contenido */
+    .toggle-section {
+      margin-top: 20px;
+    }
+    .toggle-btn {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    .toggle-btn:hover {
+      background: #357ABD;
+    }
+    .toggle-content {
+      margin-top: 15px;
+      padding: 15px;
+      background: #e9f0fa;
+      border-radius: 6px;
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    /* Gráfico con SVG */
+    .chart {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .bar {
+      fill: #4a90e2;
+      transition: fill 0.3s, height 0.4s;
+      cursor: pointer;
+    }
+    .bar:hover {
+      fill: #357ABD;
+    }
+    .bar-label {
+      font-size: 12px;
+      fill: #333;
+      pointer-events: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <h1>Mi Página Demo</h1>
+    <div class="menu-toggle" id="menuToggle" aria-label="Toggle Menu" role="button" tabindex="0">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </nav>
+
+  <div class="menu" id="menu">
+    <a href="#inicio">Inicio</a>
+    <a href="#sobre">Sobre</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+
+  <main>
+    <h2>Sección Toggle</h2>
+    <p>Pulsa el botón para mostrar u ocultar esta sección con animación.</p>
+    <div class="toggle-section">
+      <button class="toggle-btn" id="toggleBtn">Mostrar contenido</button>
+      <div class="toggle-content" id="toggleContent">
+        <p>¡Este contenido aparece y desaparece suavemente con animación!</p>
+      </div>
+    </div>
+
+    <section class="chart">
+      <h2>Gráfico simple</h2>
+      <svg width="100%" height="200" viewBox="0 0 300 200" role="img" aria-label="Gráfico de barras simple">
+        <!-- barras -->
+        <rect class="bar" x="10" y="120" width="40" height="80" />
+        <rect class="bar" x="70" y="80" width="40" height="120" />
+        <rect class="bar" x="130" y="140" width="40" height="60" />
+        <rect class="bar" x="190" y="60" width="40" height="140" />
+        <rect class="bar" x="250" y="100" width="40" height="100" />
+        <!-- labels -->
+        <text class="bar-label" x="30" y="195" text-anchor="middle">A</text>
+        <text class="bar-label" x="90" y="195" text-anchor="middle">B</text>
+        <text class="bar-label" x="150" y="195" text-anchor="middle">C</text>
+        <text class="bar-label" x="210" y="195" text-anchor="middle">D</text>
+        <text class="bar-label" x="270" y="195" text-anchor="middle">E</text>
+      </svg>
+    </section>
+  </main>
+
+  <script>
+    // Toggle menú hamburguesa
+    const menuToggle = document.getElementById('menuToggle');
+    const menu = document.getElementById('menu');
+
+    menuToggle.addEventListener('click', () => {
+      menuToggle.classList.toggle('open');
+      menu.classList.toggle('show');
+    });
+
+    // Hacer toggle con tecla Enter o espacio para accesibilidad
+    menuToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        menuToggle.click();
+      }
+    });
+
+    // Toggle contenido
+    const toggleBtn = document.getElementById('toggleBtn');
+    const toggleContent = document.getElementById('toggleContent');
+
+    toggleBtn.addEventListener('click', () => {
+      const isVisible = toggleContent.style.display === 'block';
+      if (isVisible) {
+        toggleContent.style.display = 'none';
+        toggleBtn.textContent = 'Mostrar contenido';
+      } else {
+        toggleContent.style.display = 'block';
+        toggleBtn.textContent = 'Ocultar contenido';
+      }
+    });
+  </script>
+
+</body>
+</html>
